@@ -40,6 +40,7 @@ public class TTTManager : MonoBehaviour
 
     public void Set(int n, bool? value)
     {
+        Debug.Log("SET: " + n + " - " + value);//(value == null? "null" : (value == true ? "True" : "False")));
         switch (n)
         {
             case 0: SafeSet(0, 0, value); break;
@@ -175,7 +176,9 @@ public class TTTManager : MonoBehaviour
         //TODO: I'm tired.  This needs set properly
         for (int i = 0; i < 9; i++)
         {
-            if (NotsAndCrosses[i].Equals(NS))
+            //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetComponent<NotAndCrossSpace>().name + " ?= " + NS.name);
+            //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetHashCode() + " ?= " + NS.GetHashCode());
+            if (Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(),NS))
             {
                 //NS.ChangeState(state);
                 Set(i, state);
