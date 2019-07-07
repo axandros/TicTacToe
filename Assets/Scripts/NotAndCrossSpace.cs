@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class NotAndCrossSpace : MonoBehaviour
 {   
-    private bool? state;
+    private bool? state = null;
     public bool? State { get { return state; } }
 
-    private SpriteRenderer SR;
+    private SpriteRenderer SR = null;
 
     [SerializeField]
     private float secondsToAnimate = 0.2f;
-    private float animating;
+    private float animating = 0.0f;
 
 
     [SerializeField]
-    private Sprite Nought;
+    private Sprite Nought = null;
     [SerializeField]
-    private Sprite Cross;
+    private Sprite Cross = null;
 
     //private TTTManager 
 
@@ -25,14 +25,17 @@ public class NotAndCrossSpace : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        state = null;
         SR = GetComponent<SpriteRenderer>();
-
         animating = secondsToAnimate;
 
-        //StartTest();
+        Reset();
+    }
+    public void Reset()
+    {
+        state = null;
         UpdateSprite();
     }
+
     private void StartTest()
     {
         float rand = Random.Range(0,3);
@@ -96,5 +99,22 @@ public class NotAndCrossSpace : MonoBehaviour
         {
             AnimateIn();
         }
+    }
+
+    public static bool operator ==(NotAndCrossSpace ns1, NotAndCrossSpace ns2)
+    {
+        if (!ReferenceEquals(ns1, null) && !ReferenceEquals(ns2, null))
+        {
+            if (ns1.State == null && ns2.State == null)
+            { return true; }
+            if (ns1.State == null || ns2.State == null)
+            { return false; }
+            return ns1.State != ns2.State;
+        }
+        return false;
+    }
+    public static bool operator !=(NotAndCrossSpace ns1, NotAndCrossSpace ns2)
+    {
+        return !(ns1 == ns2);
     }
 }

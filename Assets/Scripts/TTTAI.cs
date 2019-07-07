@@ -4,13 +4,27 @@ using UnityEngine;
 
 public class TTTAI : MonoBehaviour
 {
-    TTTManager Grid;
+    public enum DifficultyModes { dm_Easy, dm_Medium, dm_Hard }
+
+    TTTManager Grid = null;
 
     [SerializeField]
     private float SecondsToChange = 2;
 
-    private float _timeRemaining;
-    private bool _symbol;
+    [SerializeField]
+    private DifficultyModes difficulty = DifficultyModes.dm_Easy;
+    public DifficultyModes Difficulty { get { return difficulty; }
+        set {
+            Debug.Log("Difficulty set to: " + DifficultytoString(value));
+            difficulty = value;
+        } }
+
+    private float _timeRemaining = 1.0f;
+    [SerializeField]
+    private bool _symbol = false;
+    public bool Symbol { get { return _symbol; } set { _symbol = value; } }
+
+    public bool IsActive = false;
 
     // Start is called before the first frame update
     void Start()
@@ -36,15 +50,14 @@ public class TTTAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float dt = Time.deltaTime;
-
-        _timeRemaining = _timeRemaining - dt;
-        //Debug.Log("TimeRemaining: " + _timeRemaining);
-        if(_timeRemaining <= 0)
+        if (Grid.GetWinner() != null)
         {
-            //ChooseRandomSpot();
-            SelectOpenSpace();
-            _timeRemaining = SecondsToChange;
+            //Debug.Log("Game is over.  AI deactivating");
+            //this.enabled = false;
+        }
+        else if (IsActive)
+        {
+            TakeTurn();
         }
     }
 
@@ -59,10 +72,8 @@ public class TTTAI : MonoBehaviour
 
         int rand = Random.Range(0, num-1);
 
-        Debug.Log("Inserting Into Nth position: " + rand);
+        //Debug.Log("Inserting Into Nth position: " + rand);
         Grid.InsertNthSpace(rand, _symbol);
-
-        _symbol = !_symbol;
     }
 
     public int ChooseRandomSpot()
@@ -74,5 +85,106 @@ public class TTTAI : MonoBehaviour
 
         Grid.InsertNthSpace(rand, _symbol);
         return rand;
+    }
+
+    public void Testing()
+    {
+        float dt = Time.deltaTime;
+        _timeRemaining = _timeRemaining - dt;
+        //Debug.Log("TimeRemaining: " + _timeRemaining);
+        if (_timeRemaining <= 0)
+        {
+            //ChooseRandomSpot();
+            SelectOpenSpace();
+            _timeRemaining = SecondsToChange;
+            _symbol = !_symbol;
+        }
+    }
+
+    public void TakeTurn()
+    {
+        if (Grid.WhoseTurn == _symbol)
+        {
+
+            _timeRemaining -= Time.deltaTime;
+            if (_timeRemaining < 0.0)
+            {
+                switch (difficulty)
+                {
+                    case DifficultyModes.dm_Easy: easyMode(); break;
+                    case DifficultyModes.dm_Medium: mediumMode(); break;
+                    case DifficultyModes.dm_Hard: mediumMode();break;
+                    default: easyMode();break;
+                }
+                _timeRemaining = SecondsToChange;
+            }
+        }
+    }
+
+    private void easyMode()
+    {
+        SelectOpenSpace();
+    }
+
+    private void mediumMode()
+    {
+        bool?[,] g =  Grid.GetGrid();
+
+        // Check to see if AI can win.
+        for(int x = 0; x < 3; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                g = Grid.GetGrid();
+                if (g[x,y] == null)
+                {
+                    g[x, y] = _symbol;
+                    if(Grid.CheckForWin(g))
+                    {
+                        Grid.Set(x, y,_symbol);
+                        return;
+                    }
+                }
+            }
+        }
+        // Else, can the player win in 1 more move?
+        for (int x = 0; x < 3; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                g = Grid.GetGrid();
+                if (g[x, y] == null)
+                {
+                    g[x, y] = !_symbol;
+                    if (Grid.CheckForWin(g))
+                    {
+                        Grid.Set(x, y, _symbol);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Else, random spot? 
+        SelectOpenSpace();
+        return;
+    }
+
+    static string DifficultytoString(DifficultyModes dm)
+    {
+        string ret = "";
+        switch (dm)
+        {
+            case DifficultyModes.dm_Easy:
+                ret = "Easy";
+                break;
+            case DifficultyModes.dm_Medium:
+                ret = "Medium";
+                break;
+            case DifficultyModes.dm_Hard:
+                ret = "Hard";
+                break;
+        }
+        return ret;
     }
 }

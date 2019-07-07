@@ -4,71 +4,102 @@ using UnityEngine;
 
 public class TTTManager : MonoBehaviour
 {
-    private bool?[,] grid; // null is empty, false is X, true is 0
+    private bool?[,] grid = null; // null is empty, false is X, true is 0
+    private bool? winner = null;
 
     [SerializeField]
-    GameObject[] NotsAndCrosses;
+    private bool active = false;
+    public bool Active { get { return active; } set { active = value; } }
+    private bool turn = true;
+
+    public bool WhoseTurn
+    { get { return turn; } }
+
+    [SerializeField]
+    GameObject[] NotsAndCrosses = null;
+
+    [SerializeField]
+    GameManager Game_Manager = null;
 
     private void Start()
     {
-        //initialize the Grid
-        grid = new bool?[3, 3];
-        for (int i = 0; i < 3; i++)
-        {
-            //Debug.Log("Grid i: " + i);
-            grid[i, 0] = null;
-            grid[i, 1] = null;
-            grid[i, 2] = null;
-        }
+        ResetLevel();
+    }
+    private void Update()
+    {
+        /*
+        if (Input.GetKeyDown(KeyCode.R))
+        { ResetLevel(); }*/
     }
 
     public bool?[,] GetGrid()
     {
-        return grid;
+        return (bool?[,])grid.Clone();
     }
 
     public void Set(int x, int y, bool? value)
     {
-        //Debug.Log("TTTGrid: Setting " + x + ", " + y + " to " + value);
-        if (IsClamped(x, 0, 2) && IsClamped(y, 0, 2))
+        if (active)
         {
-            grid[x, y] = value;
-            //Debug.Log("Long position: " + (x * 3 + y));
-            NotsAndCrosses[x * 3 + y].GetComponent<NotAndCrossSpace>().ChangeState(value);
+            SafeSet(x, y, value);
         }
     }
 
     public void Set(int n, bool? value)
     {
-        Debug.Log("SET: " + n + " - " + value);//(value == null? "null" : (value == true ? "True" : "False")));
-        switch (n)
+        Debug.Log("SET: " + n + " - " + value + " | " + WhoseTurn + " | " + active);//(value == null? "null" : (value == true ? "True" : "False")));
+        if (winner == null && value == WhoseTurn && active)
         {
-            case 0: SafeSet(0, 0, value); break;
-            case 1: SafeSet(0, 1, value); break;
-            case 2: SafeSet(0, 2, value); break;
-            case 3: SafeSet(1, 0, value); break;
-            case 4: SafeSet(1, 1, value); break;
-            case 5: SafeSet(1, 2, value); break;
-            case 6: SafeSet(2, 0, value); break;
-            case 7: SafeSet(2, 1, value); break;
-            case 8: SafeSet(2, 2, value); break;
+            //Debug.Log("SET: " + n + " - " + value);//(value == null? "null" : (value == true ? "True" : "False")));
+            switch (n)
+            {
+                case 0: SafeSet(0, 0, value); break;
+                case 1: SafeSet(0, 1, value); break;
+                case 2: SafeSet(0, 2, value); break;
+                case 3: SafeSet(1, 0, value); break;
+                case 4: SafeSet(1, 1, value); break;
+                case 5: SafeSet(1, 2, value); break;
+                case 6: SafeSet(2, 0, value); break;
+                case 7: SafeSet(2, 1, value); break;
+                case 8: SafeSet(2, 2, value); break;
+            }
         }
     }
-
-    public void SafeSet(int x, int y, bool? value)
+    
+    private void SafeSet(int x, int y, bool? value)
     {
-        if (IsClamped(x, 0, 2) && IsClamped(y, 0, 2))
+        if (IsClamped(x, 0, 2) && IsClamped(y, 0, 2) && winner == null)
         {
-            Debug.Log("Attempting Safe Insert at " + x + ", " + y);
+            //Debug.Log("Attempting Safe Insert at " + x + ", " + y);
             if (grid[x, y] == null)
             {
                 //Debug.Log("Insert Success");
                 grid[x, y] = value;
                 NotsAndCrosses[x * 3 + y].GetComponent<NotAndCrossSpace>().ChangeState(value);
+                CheckForWin();
+                turn = !turn;
             }
         }
     }
-    
+
+    public void SetSpace(NotAndCrossSpace NS, bool? state)
+    {
+        //Debug.Log("SetSpace Called for: " + NS.name);
+        for (int i = 0; i < 9; i++)
+        {
+            //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetComponent<NotAndCrossSpace>().name + " ?= " + NS.name);
+            //Debug.Log("Space " + i + " : " + Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(), NS));
+            //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetHashCode() + " ?= " + NS.GetHashCode());
+            //Debug.Log("State: " + state);
+            if (Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(), NS) 
+                && state == WhoseTurn)
+            {
+                //NS.ChangeState(state);
+                Set(i, state);
+            }
+        }
+    }
+
     public bool IsBoardFull()
     {
         bool?[,] board = GetGrid();
@@ -116,16 +147,16 @@ public class TTTManager : MonoBehaviour
             int iter;
             for (iter = 0; count <= n && iter < 9; iter++)
             {
-                Debug.Log("Nth space: " + iter + " = " + (GetNthSpace(iter) == null));
+                //Debug.Log("Nth space: " + iter + " = " + (GetNthSpace(iter) == null));
                 if (GetNthSpace(iter) == null)
                 {
                     count++;
                 }
             }
-            Debug.Log("Count: " + count);
+            //Debug.Log("Count: " + count);
             if (iter < 10)
             {
-                switch (iter-1)
+                switch (iter - 1)
                 {
                     case 0: SafeSet(0, 0, value); break;
                     case 1: SafeSet(0, 1, value); break;
@@ -152,8 +183,6 @@ public class TTTManager : MonoBehaviour
         return ret;
     }
 
-
-
     public bool? GetNthSpace(int n)
     {
         switch (n)
@@ -170,19 +199,103 @@ public class TTTManager : MonoBehaviour
             default: return null;
         }
     }
-
-    public void SetSpace(NotAndCrossSpace NS, bool? state)
+    public bool CheckForWin()
     {
-        //TODO: I'm tired.  This needs set properly
-        for (int i = 0; i < 9; i++)
+        bool isWinner = CheckForWin(grid);
+        if(Game_Manager != null)
         {
-            //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetComponent<NotAndCrossSpace>().name + " ?= " + NS.name);
-            //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetHashCode() + " ?= " + NS.GetHashCode());
-            if (Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(),NS))
+            if (isWinner || IsBoardFull())
             {
-                //NS.ChangeState(state);
-                Set(i, state);
+                Game_Manager.UpdateWinner(GetWinner());
             }
+        }
+        return isWinner;
+    }
+
+    public bool CheckForWin(bool?[,] grid)
+    {
+        //DebugGridPrintout();
+        bool debug = false;
+        bool? winner = null;
+
+        // ROWS
+        // TOP
+        if (grid[0, 0] != null && grid[0, 0] == grid[0, 1] && grid[0, 0] == grid[0, 2])
+        { if (debug) { Debug.Log("Top Win"); } winner = grid[0, 0]; }
+        //Middle
+        else if (grid[1, 0] != null && grid[1, 1] == grid[1, 0] && grid[1, 0] == grid[1, 2])
+        { if (debug) { Debug.Log("Middle Row Win"); } winner = grid[1, 0]; }
+        // Bottom
+        else if (grid[2, 0] != null && grid[2, 2] == grid[2, 1] && grid[2, 2] == grid[2, 0])
+        { if (debug) { Debug.Log("Bottom Win"); } winner = grid[2, 2]; }
+
+        //COLUMNS 
+        //LEFT
+        else if (grid[0, 0] != null && grid[0, 0] == grid[1, 0] && grid[0, 0] == grid[2, 0])
+        { if (debug) { Debug.Log("Left Win"); } winner = grid[0, 0]; }
+        // Middle
+        else if (grid[0, 1] != null && grid[0, 1] == grid[1, 1] && grid[1, 1] == grid[2, 1])
+        { if (debug) { Debug.Log("Middle Column Win"); } winner = grid[1, 1]; }
+        //Right
+        else if (grid[0, 2] != null && grid[2, 2] == grid[1, 2] && grid[2, 2] == grid[0, 2])
+        { if (debug) { Debug.Log("Right Win"); } winner = grid[2, 2]; }
+
+        //Slash
+        else if (grid[1, 1] != null && grid[1, 1] == grid[0, 2] && grid[1, 1] == grid[2, 0])
+        { if (debug) { Debug.Log("Slash Win"); } winner = grid[1, 1]; }
+        // Back-Slash
+        else if (grid[0, 0] != null && grid[0, 0] == grid[1, 1] && grid[0, 0] == grid[2, 2])
+        { if (debug) { Debug.Log("Backslash Win"); } winner = grid[0, 0]; }
+
+        // Handle winner
+        if (grid == this.grid)
+        {
+            this.winner = winner;
+            
+            if (winner == false)
+            { Debug.Log("Circle Wins"); }
+            else if (winner == true)
+            { Debug.Log("Cross Wins"); }
+        }
+        return (winner != null);
+    }
+
+    private void DebugGridPrintout()
+    {
+        Debug.Log( '\n' +
+            (grid[0, 0]==null? "-1": grid[0,0] == true? "X":"O")+ " " +
+            (grid[0, 1] == null ? "-1" : grid[0, 1] == true ? "X" : "O") + " " + 
+            (grid[0, 2] == null ? "-1" : grid[0, 2] == true ? "X" : "O") + '\n' +
+
+            (grid[1, 0] == null ? "-1" : grid[1, 0] == true ? "X" : "O") + " " +
+            (grid[1, 1] == null ? "-1" : grid[1, 1] == true ? "X" : "O") + " " +
+            (grid[1, 2] == null ? "-1" : grid[1, 2] == true ? "X" : "O") + '\n' +
+
+            (grid[2, 0] == null ? "-1" : grid[2, 0] == true ? "X" : "O") + " " +
+            (grid[2, 1] == null ? "-1" : grid[2, 1] == true ? "X" : "O") + " " +
+            (grid[2, 2] == null ? "-1" : grid[2, 2] == true ? "X" : "O") + '\n'
+            );
+    }
+
+    public bool? GetWinner()
+    { return winner; }
+
+    public void ResetLevel()
+    {
+        winner = null;
+        turn = true;
+        //initialize the Grid
+        grid = new bool?[3, 3];
+        for (int i = 0; i < 3; i++)
+        {
+            //Debug.Log("Grid i: " + i);
+            grid[i, 0] = null;
+            grid[i, 1] = null;
+            grid[i, 2] = null;
+        }
+        for(int i = 0; i < 9; i++)
+        {
+            NotsAndCrosses[i].GetComponent<NotAndCrossSpace>().Reset();
         }
     }
 }

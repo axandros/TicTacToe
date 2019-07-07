@@ -5,15 +5,23 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    private TTTManager tManager;
+    private TTTManager tManager = null;
 
     [SerializeField]
-    private bool? state;
+    private bool State = true;
+    public bool Symbol { get { return State; } set { State = value; } }
+
+    // Determines how active the player is - allows pausing input.
+    [SerializeField]
+    private bool _reading = true;
+    
+    public bool Reading { get { return _reading; } set {
+            //Debug.Log("Reading = " + value);
+            _reading = value; } }
 
     // Start is called before the first frame update
     void Start()
     {
-        state = false;
         if(tManager == null)
         {
             var go = GameObject.FindGameObjectWithTag("Tag");
@@ -24,38 +32,51 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetAxis("Click") > 0)
+        if (Reading)
         {
-            // Debug.Log("Click");
-            
-            /*
-            RaycastHit2D hit = Physics2D.Raycast(
-                Input.mousePosition
-                , Input.mousePosition - Camera.main.ScreenToWorldPoint(Input.mousePosition)
-                , Mathf.Infinity);*/
-
+            CheckClick();
+        }
+        //AltClick();
+    }
+    
+    private void CheckClick()
+    {
+        if (Input.GetAxis("Fire1") > 0)
+        {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
 
-
-            //Debug.Log("Hit: " + (hit.transform != null));
-
             if (hit.transform != null)
             {
-                //Debug.Log("Hit: " + hit.collider.gameObject.name);
-                
+                //Debug.Log("hit: " + hit.ToString());
                 GameObject obj = hit.collider.gameObject;
                 NotAndCrossSpace NCS = obj.GetComponent<NotAndCrossSpace>();
                 if (NCS != null)
                 {
                     // We have contact!  We can tell it what to do now
-                    Debug.Log("Calling SetSpace");
-                    tManager.SetSpace(NCS, state);
-                    //tManager.SetSpace(obj, state);
+                    tManager.SetSpace(NCS, State);
                 }
-                
             }
         }
     }
-    
+
+    public void AltClick()
+    {
+        if (Input.GetMouseButton(1))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
+
+            if (hit.transform != null)
+            {
+                GameObject obj = hit.collider.gameObject;
+                NotAndCrossSpace NCS = obj.GetComponent<NotAndCrossSpace>();
+                if (NCS != null)
+                {
+                    // We have contact!  We can tell it what to do now
+                    tManager.SetSpace(NCS, !State);
+                }
+            }
+        }
+    }
 }
