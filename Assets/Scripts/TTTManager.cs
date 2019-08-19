@@ -298,4 +298,106 @@ public class TTTManager : MonoBehaviour
             NotsAndCrosses[i].GetComponent<NotAndCrossSpace>().Reset();
         }
     }
+
+    /*************
+     *  Grid Checks
+     */
+    public enum TranslationType { NONE,Equal,Right,Left,Full};
+
+    public bool AreTranslations(bool?[,] gridA, bool?[,] gridB)
+    {
+        TranslationType tt;
+
+        return AreTranslations(gridA, gridB, out tt);
+    }
+
+    public bool AreTranslations(bool?[,] gridA , bool?[,] gridB, out TranslationType tt)
+    {
+        tt = TranslationType.NONE;
+        bool ret = false;
+        // Translation Type: Equal
+        if (GridsEqual(gridA,gridB))
+        {
+            tt = TranslationType.Equal;
+            ret = true;
+        }
+        if(gridA[1,1] == gridB[1, 1]) // Check center
+        {
+            // Translation Type: Right
+            if (
+                // Corners
+                gridA[0, 0] == gridB[0, 2]
+                && gridA[0, 2] == gridB[2, 2]
+                && gridA[2, 2] == gridB[2, 0]
+                && gridA[2, 0] == gridB[0, 0]
+
+                // Edges
+                && gridA[0, 1] == gridB[1, 2]
+                && gridA[1, 2] == gridB[2, 1]
+                && gridA[2, 1] == gridB[1, 0]
+                && gridA[1, 0] == gridB[0, 1]
+                )
+            {
+                tt = TranslationType.Right;
+                ret = true;
+            }
+            // Translation Type: Left
+            if (
+                // Corners
+                gridB[0, 0] == gridA[0, 2]
+                && gridB[0, 2] == gridA[2, 2]
+                && gridB[2, 2] == gridA[2, 0]
+                && gridB[2, 0] == gridA[0, 0]
+
+                // Edges
+                && gridB[0, 1] == gridA[1, 2]
+                && gridB[1, 2] == gridA[2, 1]
+                && gridB[2, 1] == gridA[1, 0]
+                && gridB[1, 0] == gridA[0, 1]
+                )
+            {
+                tt = TranslationType.Left;
+                ret = true;
+            }
+            // Translation Type: Full
+            if (
+                // Corners
+                gridA[0, 0] == gridB[2, 2]
+                && gridA[0, 2] == gridB[2, 0]
+                && gridA[2, 2] == gridB[0, 0]
+                && gridA[2, 0] == gridB[0, 2]
+
+                // Edges
+                && gridA[0, 1] == gridB[2, 1]
+                && gridA[1, 2] == gridB[1, 0]
+                && gridA[2, 1] == gridB[0, 1]
+                && gridA[1, 0] == gridB[1, 2]
+                )
+            {
+                tt = TranslationType.Full;
+                ret = true;
+            }
+
+        }
+        return ret;
+    }
+
+    public bool GridsEqual(bool?[,] gridA, bool?[,] gridB)
+    {
+        bool ret = false;
+        if(gridA[0,0] == gridB[0,0]
+            && gridA[1, 0] == gridB[1, 0]
+            && gridA[2, 0] == gridB[2, 0]
+            && gridA[0, 1] == gridB[0, 1]
+            && gridA[1, 1] == gridB[1, 1]
+            && gridA[2, 1] == gridB[2, 1]
+            && gridA[0, 2] == gridB[0, 2]
+            && gridA[1, 2] == gridB[1, 2]
+            && gridA[2, 2] == gridB[2, 2]
+            )
+        {
+            ret = true;
+        }
+        return ret;
+    }
 }
