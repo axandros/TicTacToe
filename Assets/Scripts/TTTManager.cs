@@ -199,6 +199,7 @@ public class TTTManager : MonoBehaviour
             default: return null;
         }
     }
+
     public bool CheckForWin()
     {
         bool isWinner = CheckForWin(grid);
@@ -399,5 +400,59 @@ public class TTTManager : MonoBehaviour
             ret = true;
         }
         return ret;
+    }
+
+    bool?[,] TransformGrid(bool?[,] inputGrid,TranslationType tt)
+    {
+        bool?[,] newGrid = new bool?[3, 3];
+        if (tt == TranslationType.Right)
+        {
+            newGrid[0, 0] = inputGrid[2, 0];
+            newGrid[1, 0] = inputGrid[2, 1];
+            newGrid[2, 0] = inputGrid[2, 2];
+            newGrid[0, 1] = inputGrid[1, 0];
+            newGrid[1, 1] = inputGrid[1, 1];
+            newGrid[2, 1] = inputGrid[1, 2];
+            newGrid[0, 2] = inputGrid[0, 0];
+            newGrid[1, 2] = inputGrid[0, 1];
+            newGrid[2, 2] = inputGrid[0, 2];
+        }
+        else if (tt == TranslationType.Left)
+        {
+            newGrid[0, 0] = inputGrid[0, 2];
+            newGrid[1, 0] = inputGrid[0, 1];
+            newGrid[2, 0] = inputGrid[2, 2];
+            newGrid[0, 1] = inputGrid[1, 2];
+            newGrid[1, 1] = inputGrid[1, 1];
+            newGrid[2, 1] = inputGrid[1, 0];
+            newGrid[0, 2] = inputGrid[2, 2];
+            newGrid[1, 2] = inputGrid[2, 1];
+            newGrid[2, 2] = inputGrid[2, 0];
+        }
+        else if (tt == TranslationType.Full)
+        {
+            newGrid[0, 0] = inputGrid[2, 2];
+            newGrid[1, 0] = inputGrid[1, 2];
+            newGrid[2, 0] = inputGrid[0, 2];
+            newGrid[0, 1] = inputGrid[2, 1];
+            newGrid[1, 1] = inputGrid[1, 1];
+            newGrid[2, 1] = inputGrid[0, 1];
+            newGrid[0, 2] = inputGrid[2, 0];
+            newGrid[1, 2] = inputGrid[1, 0];
+            newGrid[2, 2] = inputGrid[0, 0];
+        }
+        else
+        {
+            newGrid[0, 0] = inputGrid[0, 0];
+            newGrid[1, 0] = inputGrid[1, 0];
+            newGrid[2, 0] = inputGrid[2, 0];
+            newGrid[0, 1] = inputGrid[0, 1];
+            newGrid[1, 1] = inputGrid[1, 1];
+            newGrid[2, 1] = inputGrid[2, 1];
+            newGrid[0, 2] = inputGrid[0, 2];
+            newGrid[1, 2] = inputGrid[1, 2];
+            newGrid[2, 2] = inputGrid[2, 2];
+        }
+        return newGrid;
     }
 }
