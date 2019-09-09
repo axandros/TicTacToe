@@ -23,7 +23,14 @@ public class TTTManager : MonoBehaviour
 
     private void Start()
     {
-        ResetLevel();
+        try
+        {
+            ResetLevel();
+        }
+        catch
+        {
+            active = false;
+        }
     }
     private void Update()
     {
@@ -65,7 +72,7 @@ public class TTTManager : MonoBehaviour
             }
         }
     }
-    
+
     private void SafeSet(int x, int y, bool? value)
     {
         if (IsClamped(x, 0, 2) && IsClamped(y, 0, 2) && winner == null)
@@ -91,7 +98,7 @@ public class TTTManager : MonoBehaviour
             //Debug.Log("Space " + i + " : " + Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(), NS));
             //Debug.Log("Space " + i + " : " + NotsAndCrosses[i].GetHashCode() + " ?= " + NS.GetHashCode());
             //Debug.Log("State: " + state);
-            if (Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(), NS) 
+            if (Object.ReferenceEquals(NotsAndCrosses[i].GetComponent<NotAndCrossSpace>(), NS)
                 && state == WhoseTurn)
             {
                 //NS.ChangeState(state);
@@ -203,7 +210,7 @@ public class TTTManager : MonoBehaviour
     public bool CheckForWin()
     {
         bool isWinner = CheckForWin(grid);
-        if(Game_Manager != null)
+        if (Game_Manager != null)
         {
             if (isWinner || IsBoardFull())
             {
@@ -252,7 +259,7 @@ public class TTTManager : MonoBehaviour
         if (grid == this.grid)
         {
             this.winner = winner;
-            
+
             if (winner == false)
             { Debug.Log("Circle Wins"); }
             else if (winner == true)
@@ -263,9 +270,9 @@ public class TTTManager : MonoBehaviour
 
     private void DebugGridPrintout()
     {
-        Debug.Log( '\n' +
-            (grid[0, 0]==null? "-1": grid[0,0] == true? "X":"O")+ " " +
-            (grid[0, 1] == null ? "-1" : grid[0, 1] == true ? "X" : "O") + " " + 
+        Debug.Log('\n' +
+            (grid[0, 0] == null ? "-1" : grid[0, 0] == true ? "X" : "O") + " " +
+            (grid[0, 1] == null ? "-1" : grid[0, 1] == true ? "X" : "O") + " " +
             (grid[0, 2] == null ? "-1" : grid[0, 2] == true ? "X" : "O") + '\n' +
 
             (grid[1, 0] == null ? "-1" : grid[1, 0] == true ? "X" : "O") + " " +
@@ -294,7 +301,7 @@ public class TTTManager : MonoBehaviour
             grid[i, 1] = null;
             grid[i, 2] = null;
         }
-        for(int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++)
         {
             NotsAndCrosses[i].GetComponent<NotAndCrossSpace>().Reset();
         }
@@ -303,7 +310,7 @@ public class TTTManager : MonoBehaviour
     /*************
      *  Grid Checks
      */
-    public enum TranslationType { NONE,Equal,Right,Left,Full};
+    public enum TranslationType { NONE, Equal, Right, Left, Full };
 
     public bool AreTranslations(bool?[,] gridA, bool?[,] gridB)
     {
@@ -312,17 +319,17 @@ public class TTTManager : MonoBehaviour
         return AreTranslations(gridA, gridB, out tt);
     }
 
-    public bool AreTranslations(bool?[,] gridA , bool?[,] gridB, out TranslationType tt)
+    public bool AreTranslations(bool?[,] gridA, bool?[,] gridB, out TranslationType tt)
     {
         tt = TranslationType.NONE;
         bool ret = false;
         // Translation Type: Equal
-        if (GridsEqual(gridA,gridB))
+        if (GridsEqual(gridA, gridB))
         {
             tt = TranslationType.Equal;
             ret = true;
         }
-        if(gridA[1,1] == gridB[1, 1]) // Check center
+        else if (gridA[1, 1] == gridB[1, 1]) // Check center
         {
             // Translation Type: Right
             if (
@@ -386,7 +393,7 @@ public class TTTManager : MonoBehaviour
     public bool GridsEqual(bool?[,] gridA, bool?[,] gridB)
     {
         bool ret = false;
-        if(gridA[0,0] == gridB[0,0]
+        if (gridA[0, 0] == gridB[0, 0]
             && gridA[1, 0] == gridB[1, 0]
             && gridA[2, 0] == gridB[2, 0]
             && gridA[0, 1] == gridB[0, 1]
@@ -402,7 +409,7 @@ public class TTTManager : MonoBehaviour
         return ret;
     }
 
-    bool?[,] TransformGrid(bool?[,] inputGrid,TranslationType tt)
+    public bool?[,] TransformGrid(bool?[,] inputGrid, TranslationType tt)
     {
         bool?[,] newGrid = new bool?[3, 3];
         if (tt == TranslationType.Right)
@@ -454,5 +461,19 @@ public class TTTManager : MonoBehaviour
             newGrid[2, 2] = inputGrid[2, 2];
         }
         return newGrid;
+    }
+
+    public string TranslationTypeToString(TranslationType input){
+        string ret = "";
+        switch (input)
+        {
+            case TranslationType.Equal: ret = "Equal"; break;
+            case TranslationType.Right: ret = "Right"; break;
+            case TranslationType.Left: ret = "Lift"; break;
+            case TranslationType.Full: ret = "Full"; break;
+            default: ret = "NONE"; break;
+        }
+
+        return ret;
     }
 }

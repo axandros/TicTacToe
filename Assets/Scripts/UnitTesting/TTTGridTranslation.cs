@@ -9,12 +9,11 @@ public class TTTGridTranslation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Man = new TTTManager();
-
+        Man = transform.gameObject.AddComponent<TTTManager>();
 
         Debug.Log("TEST 01: " + Test01());
-        Debug.Log("TEST 02: " + Test02());
-        Debug.Log("TEST 03: " + Test03());
+        //Debug.Log("TEST 02: " + Test02());
+        //Debug.Log("TEST 03: " + Test03());
 
         //Debug.Log("TEST 04: " + Test04());
     }
@@ -22,7 +21,10 @@ public class TTTGridTranslation : MonoBehaviour
     bool Test01()
     {
         bool Assertion = false;
+        bool IsTranslation = true;
+
         TTTManager.TranslationType translation;
+        TTTManager.TranslationType TrueTrans = TTTManager.TranslationType.Equal;
 
         bool?[,] grid = new bool?[3,3]
             { {null, null, null},
@@ -35,7 +37,18 @@ public class TTTGridTranslation : MonoBehaviour
               {null, null, null} };
 
         Assertion = Man.AreTranslations(grid, grid2, out translation);
-        return Assertion && translation == TTTManager.TranslationType.Equal;
+        //Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
+
+        bool ret = false;
+        if( Assertion == IsTranslation)
+        {
+            if (translation == TrueTrans) {
+                return ret = true; }
+            else
+            { Debug.Log("Translation Type: " + Man.TranslationTypeToString(translation)); } }
+        else{ Debug.Log("Assertion: " + Assertion); }
+
+        return ret;
     }
     bool Test02()
     {
@@ -53,6 +66,7 @@ public class TTTGridTranslation : MonoBehaviour
               {null, null, null} };
 
         Assertion = Man.AreTranslations(grid, grid2, out translation);
+        //Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
         return Assertion && translation == TTTManager.TranslationType.NONE;
     }
     bool Test03()
@@ -70,7 +84,8 @@ public class TTTGridTranslation : MonoBehaviour
               {null, false, null},
               {null, null, null} };
 
-        Assertion = Man.AreTranslations(grid, grid2, out translation);
+        Assertion = !Man.AreTranslations(grid, grid2, out translation);
+        Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
         return Assertion && translation == TTTManager.TranslationType.NONE;
     }
 
@@ -89,7 +104,8 @@ public class TTTGridTranslation : MonoBehaviour
               {null, null, null},
               {null, null, false} };
 
-        Assertion = Man.AreTranslations(grid, grid2, out translation);
+        Assertion = !Man.AreTranslations(grid, grid2, out translation);
+        //Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
         return Assertion && translation == TTTManager.TranslationType.Full;
     }
     
