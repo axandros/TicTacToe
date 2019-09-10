@@ -12,20 +12,31 @@ public class TTTGridTranslation : MonoBehaviour
         Man = transform.gameObject.AddComponent<TTTManager>();
 
         Debug.Log("TEST 01: " + Test01());
-        //Debug.Log("TEST 02: " + Test02());
-        //Debug.Log("TEST 03: " + Test03());
+        Debug.Log("TEST 02: " + Test02());
+        Debug.Log("TEST 03: " + Test03());
 
         //Debug.Log("TEST 04: " + Test04());
     }
 
+    bool TestTranslations(bool?[,] grid1, bool?[,] grid2, bool IsTranslation, TTTManager.TranslationType translation)
+    {
+        TTTManager.TranslationType tran;
+        bool Assertion = Assertion = Man.AreTranslations(grid1, grid2, out tran); ;
+        
+        bool ret = false;
+        if( Assertion == IsTranslation)
+        {
+            if (tran == translation) {
+                return ret = true; }
+            else
+            { Debug.Log("Translation Type: " + Man.TranslationTypeToString(tran)); } }
+        else{ Debug.Log("Assertion: " + Assertion); }
+
+        return ret;
+    }
+
     bool Test01()
     {
-        bool Assertion = false;
-        bool IsTranslation = true;
-
-        TTTManager.TranslationType translation;
-        TTTManager.TranslationType TrueTrans = TTTManager.TranslationType.Equal;
-
         bool?[,] grid = new bool?[3,3]
             { {null, null, null},
               {null, null, null},
@@ -35,26 +46,10 @@ public class TTTGridTranslation : MonoBehaviour
             { {null, null, null},
               {null, null, null},
               {null, null, null} };
-
-        Assertion = Man.AreTranslations(grid, grid2, out translation);
-        //Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
-
-        bool ret = false;
-        if( Assertion == IsTranslation)
-        {
-            if (translation == TrueTrans) {
-                return ret = true; }
-            else
-            { Debug.Log("Translation Type: " + Man.TranslationTypeToString(translation)); } }
-        else{ Debug.Log("Assertion: " + Assertion); }
-
-        return ret;
+        return TestTranslations(grid, grid2, true, TTTManager.TranslationType.Equal);
     }
     bool Test02()
     {
-        bool Assertion = false;
-        TTTManager.TranslationType translation;
-
         bool?[,] grid = new bool?[3, 3]
             { {null, null, null},
               {null, null, null},
@@ -65,15 +60,10 @@ public class TTTGridTranslation : MonoBehaviour
               {null, true, null},
               {null, null, null} };
 
-        Assertion = Man.AreTranslations(grid, grid2, out translation);
-        //Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
-        return Assertion && translation == TTTManager.TranslationType.NONE;
+        return TestTranslations(grid, grid2, false, TTTManager.TranslationType.NONE);
     }
     bool Test03()
     {
-        bool Assertion = false;
-        TTTManager.TranslationType translation;
-
         bool?[,] grid = new bool?[3, 3]
             { {null, null, null},
               {null, null, null},
@@ -84,9 +74,7 @@ public class TTTGridTranslation : MonoBehaviour
               {null, false, null},
               {null, null, null} };
 
-        Assertion = !Man.AreTranslations(grid, grid2, out translation);
-        Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
-        return Assertion && translation == TTTManager.TranslationType.NONE;
+        return TestTranslations(grid, grid2, false, TTTManager.TranslationType.NONE);
     }
 
     bool Test04()
