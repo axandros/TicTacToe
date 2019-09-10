@@ -15,7 +15,10 @@ public class TTTGridTranslation : MonoBehaviour
         Debug.Log("TEST 02: " + Test02());
         Debug.Log("TEST 03: " + Test03());
 
-        //Debug.Log("TEST 04: " + Test04());
+        Debug.Log("TEST 04: " + Test04());
+
+        Debug.Log("TEST 05: " + Test05());
+        Debug.Log("TEST 06: " + Test06());
     }
 
     bool TestTranslations(bool?[,] grid1, bool?[,] grid2, bool IsTranslation, TTTManager.TranslationType translation)
@@ -79,9 +82,6 @@ public class TTTGridTranslation : MonoBehaviour
 
     bool Test04()
     {
-        bool Assertion = false;
-        TTTManager.TranslationType translation;
-
         bool?[,] grid = new bool?[3, 3]
             { {true, null, null},
               {null, null, null},
@@ -92,9 +92,65 @@ public class TTTGridTranslation : MonoBehaviour
               {null, null, null},
               {null, null, false} };
 
-        Assertion = !Man.AreTranslations(grid, grid2, out translation);
-        //Debug.Log("Assertion: " + Assertion + " | Translation Type: " + Man.TranslationTypeToString(translation));
-        return Assertion && translation == TTTManager.TranslationType.Full;
+        return TestTranslations(grid, grid2, false, TTTManager.TranslationType.NONE);
     }
-    
+
+    bool Test05()
+    {
+        bool?[,] grid = new bool?[3, 3]
+            { {true, false, true},
+              {true, false, false},
+              {false, true, true} };
+
+        bool?[,] gridL = new bool?[3, 3]
+            { {true, false, true},
+              {false, false, true},
+              {true, true, false} };
+
+        bool?[,] gridR = new bool?[3, 3]
+            { {false, true, true},
+              {true, false, false},
+              {true, false, true} };
+
+        bool?[,] gridF = new bool?[3, 3]
+            { {true, true, false},
+              {false, false, true},
+              {true, false, true} };
+
+        bool Right = TestTranslations(grid, gridR, true, TTTManager.TranslationType.Right);
+        bool Left = TestTranslations(grid, gridL, true, TTTManager.TranslationType.Left);
+        bool Full = TestTranslations(grid, gridF, true, TTTManager.TranslationType.Full);
+
+        return Right && Left && Full;
+    }
+
+    bool Test06()
+    {
+        bool?[,] grid = new bool?[3, 3]
+            { {false, true, false},
+              {false, true, true},
+              {true, false, true} };
+
+        bool?[,] gridL = new bool?[3, 3]
+            { {false, true, true},
+              {true, true, false},
+              {false, false, true} };
+
+        bool?[,] gridR = new bool?[3, 3]
+            { {true, false, false},
+              {false, true, true},
+              {true, true, false} };
+
+        bool?[,] gridF = new bool?[3, 3]
+            { {true, false, true},
+              {true, true, false},
+              {false, true, false} };
+
+        bool Right = TestTranslations(grid, gridR, true, TTTManager.TranslationType.Right);
+        bool Left = TestTranslations(grid, gridL, true, TTTManager.TranslationType.Left);
+        bool Full = TestTranslations(grid, gridF, true, TTTManager.TranslationType.Full);
+
+        return Right && Left && Full;
+    }
+
 }

@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+struct AINode
+{
+    AINode parent;
+
+    bool?[,] grid;
+}*/
+
 public class TTTAI : MonoBehaviour
 {
     public enum DifficultyModes { dm_Easy, dm_Medium, dm_Hard }
