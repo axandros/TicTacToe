@@ -8,6 +8,7 @@ public class NotAndCrossSpace : MonoBehaviour
     public bool? State { get { return state; } }
 
     private SpriteRenderer SR = null;
+    private AudioSource AS = null;
 
     [SerializeField]
     private float secondsToAnimate = 0.2f;
@@ -26,6 +27,7 @@ public class NotAndCrossSpace : MonoBehaviour
     void Start()
     {
         SR = GetComponent<SpriteRenderer>();
+        AS = GetComponent<AudioSource>();
         animating = secondsToAnimate;
 
         Reset();
@@ -72,6 +74,7 @@ public class NotAndCrossSpace : MonoBehaviour
                     SR.sprite = Nought;
                 }
                 AnimateIn();
+                if (AS) { AS.Play(); }
              }
         }
         
